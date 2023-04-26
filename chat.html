@@ -1,0 +1,220 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talk with Anyone</title>
+    
+    <!-- <link rel="stylesheet" href="/style.css"> -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: #bdadf8;
+  font-style: bold;
+    font-family: 'Roboto', sans-serif;
+}
+section.chat__section {
+    width: 800px;
+    max-width: 90%;
+    background: #000000;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+.brand {
+    padding: 20px;
+    background: #f1f1f1;
+    display: flex;
+    align-items: center;
+}
+.brand h1 {
+    /* text-transform: uppercase;
+    font-size: 20px;
+    color: #444;
+    margin-left: 10px;
+     */
+     text-transform: uppercase;
+    font-size: 25px;
+    color: #000;
+    margin-left: 10px;
+    font-style: italic;
+    font-family: auto;
+   
+}
+.message__area{
+    height: 500px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding-top: 40px;
+}
+textarea {
+    width: 100%;
+    border: none;
+    padding: 20px;
+    font-size: 16px;
+    outline: none;
+    background: #FBFBFB;
+}
+
+.message {
+    padding: 20px; 
+    border-radius: 4px; 
+    margin-bottom: 40px;
+    max-width: 300px;
+    position: relative;
+}
+.incoming {
+    background: #f4f3f3;
+    color: #030303;  
+    font-weight: bold;
+    font-family: 'Times New Roman', Times, serif;
+    font-style: italic;
+}
+.outgoing {
+    background: #0611e2;
+    color: #ffffff;
+    margin-left: auto;
+    font-weight: bolder;
+    font-family: Arial, Helvetica, sans-serif;
+   
+}
+.message h4 {
+    position: absolute;
+    top: -23px;
+    left: 0;
+    color: #fff6f6;
+    font-size: 18px;
+}
+/* change Color */
+.btn{
+          padding: 15px;
+          margin: 15px;
+          border-radius: 50%;
+          padding-left:50px;
+        }
+        #blue{
+          background-color: black;
+        }
+        #green{
+          
+          background-color:rgb(254, 254, 254);
+
+        }
+        #red{
+          background-color:rgb(206, 0, 0);
+
+        }
+       #orange{
+        background-color:rgb(247, 187, 35);
+
+       }
+
+
+     
+    </style>
+</head>
+
+<body id="page-top">
+     
+    
+    <section class="chat__section">
+
+        
+        <div class="brand" id="color">
+            
+            
+                <span class="btn" id="blue" onclick="changeBG('black')"></span>
+                <span class="btn" id="green" onclick="changeBG('rgb(254, 254, 254)')"></span>
+                <span class="btn" id="red" onclick="changeBG('rgb(206, 0, 0)')"></span>
+                <span class="btn" id="orange" onclick="changeBG('rgb(247, 187, 35)')"></span>
+                
+                <marquee width="75%" direction="down" height="70px">
+                    <h1>Talk With Anyone</h1>
+                    </marquee>
+            
+            
+        </div>
+        <div class="message__area"></div>
+        <div>
+            <textarea id="textarea" cols="30" rows="1" placeholder="Write a message..."></textarea>
+        </div>
+    </section>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io()
+let name;
+let textarea = document.querySelector('#textarea')
+let messageArea = document.querySelector('.message__area')
+do {
+    
+    name = prompt('Please enter your name: ')
+} while(!name)
+
+
+textarea.addEventListener('keyup', (e) => {
+    if(e.key === 'Enter') {
+        sendMessage(e.target.value)
+    }
+})
+
+function sendMessage(message) {
+    let msg = {
+        user: name,
+        message: message.trim()
+    }
+    // Append 
+    appendMessage(msg, 'outgoing')
+    textarea.value = ''
+    scrollToBottom()
+
+    // Send to server 
+    socket.emit('message', msg)
+
+}
+
+function appendMessage(msg, type) {
+    let mainDiv = document.createElement('div')
+    let className = type
+    mainDiv.classList.add(className, 'message')
+
+    let markup = `
+        <h4>${msg.user}</h4>
+        <p>${msg.message}</p>
+    `
+    mainDiv.innerHTML = markup
+    messageArea.appendChild(mainDiv)
+}
+
+// Recieve messages 
+socket.on('message', (msg) => {
+    appendMessage(msg, 'incoming')
+    scrollToBottom()
+})
+
+function scrollToBottom() {
+    messageArea.scrollTop = messageArea.scrollHeight
+}
+
+function changeBG(color){
+      document.body.style.backgroundColor=color;
+    }
+
+
+
+   
+    </script>
+</body>
+
+</html>
